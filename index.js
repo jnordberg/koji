@@ -1,0 +1,1 @@
+throw new Error("Don't require koji directly. Only require the modules you need to use. e.g. koji/view");
