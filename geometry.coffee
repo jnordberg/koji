@@ -46,18 +46,21 @@ class Point extends Geometry
 
   distanceTo: (point) ->
     ### Distance to *point*. ###
+    point = Point.select point
     xd = point.x - @x
     yd = point.y - @y
     return Math.sqrt(xd * xd + yd * yd)
 
   add: (point) ->
     ### Add *point* to this point. ###
+    point = Point.select point
     @x += point.x
     @y += point.y
     return this
 
   substract: (point) ->
     ### Substract *point* from this point. ###
+    point = Point.select point
     @x -= point.x
     @y -= point.y
     return this
@@ -70,6 +73,7 @@ class Point extends Geometry
 
   dot: (point) ->
     ### Dot product of *point* and this point. ###
+    point = Point.select point
     return @x * point.x + @y * point.y
 
   normalize: ->
@@ -79,6 +83,7 @@ class Point extends Geometry
 
   angle: (point) ->
     ### Angle to *point* in radians. ###
+    point = Point.select point
     return Math.atan2(point.y - @y, point.x - @x)
 
 class Size extends Geometry
