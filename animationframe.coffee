@@ -34,11 +34,18 @@ if not requestAnimationFrame?
 # check what timestamp format is being used
 # http://lists.w3.org/Archives/Public/public-web-perf/2012May/0053.html
 requestAnimationFrame (time) ->
-  if window.performance?.now? and time < 1e12
-    requestAnimationFrame.now = -> window.performance.now()
-    requestAnimationFrame.method = 'native-highres'
+  if time < 1e12
+    if window.performance?.now?
+      requestAnimationFrame.now = -> window.performance.now()
+      requestAnimationFrame.method = 'native-highres'
+    else
+      # iOS7 sends highres timestamps but does not expose a way to access them
+      offset = now() - time
+      requestAnimationFrame.now = -> now() - offset
+      requestAnimationFrame.method = 'native-highres-noperf'
   else
     requestAnimationFrame.now = now
+  return
 
 # there's no way to synchronously detect high-res timestamps :-(
 # naively assume highres until detection finishes if performance.now is present
