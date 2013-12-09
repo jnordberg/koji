@@ -9,9 +9,13 @@ deg2rad = (deg) ->
 class Geometry extends Base
 
   constructor: (args...) ->
-    @offset = 0 # the offset allows the data to be passed along, e.g. from a rect
     if args.length is 1
-      @data = args[0]
+      if args[0] instanceof Array
+        @data = args[0]
+      else
+        @data = []
+        for key, val of args[0]
+          this[key] = val
     else if args.length > 1
       @data = args
     else
@@ -32,12 +36,12 @@ class Geometry extends Base
 class Point extends Geometry
 
   @property 'x', {get: 'getX', set: 'setX'}
-  getX: -> @data[@offset]
-  setX: (val) -> @data[@offset] = val
+  getX: -> @data[0]
+  setX: (val) -> @data[0] = val
 
   @property 'y', {get: 'getY', set: 'setY'}
-  getY: -> @data[@offset + 1]
-  setY: (val) -> @data[@offset + 1] = val
+  getY: -> @data[1]
+  setY: (val) -> @data[1] = val
 
   @property 'length', {get: 'getLength'}
   getLength: ->
@@ -89,12 +93,12 @@ class Point extends Geometry
 class Size extends Geometry
 
   @property 'width', {get: 'getWidth', set: 'setWidth'}
-  getWidth: -> @data[@offset]
-  setWidth: (val) -> @data[@offset] = val
+  getWidth: -> @data[0]
+  setWidth: (val) -> @data[0] = val
 
   @property 'height', {get: 'getHeight', set: 'setHeight'}
-  getHeight: -> @data[@offset + 1]
-  setHeight: (val) -> @data[@offset + 1] = val
+  getHeight: -> @data[1]
+  setHeight: (val) -> @data[1] = val
 
   @property 'mid', {get: 'getMid'}
   getMid: -> new Point @width / 2, @height / 2
@@ -122,61 +126,56 @@ class Size extends Geometry
     ### Scales the size by *factor*. ###
     @width *= factor
     @height *= factor
+    return this
 
 class Rect extends Geometry
 
+  constructor: (args...) ->
+    switch args.length
+      when 4
+        @origin = new Point args[0], args[1]
+        @size = new Size args[2], args[3]
+      when 2
+        @origin = Point.select args[0]
+        @size = Size.select args[1]
+      else
+        @origin = new Point args[0][0], args[0][1]
+        @size = new Size args[0][2], args[0][3]
+
+  clone: ->
+    new Rect @origin.clone(), @size.clone()
+
   @property 'x', {get: 'getX', set: 'setX'}
-  getX: -> @data[@offset]
-  setX: (val) -> @data[@offset] = val
+  getX: -> @origin.x
+  setX: (val) -> @origin.x = val
 
   @property 'y', {get: 'getY', set: 'setY'}
-  getY: -> @data[@offset + 1]
-  setY: (val) -> @data[@offset + 1] = val
+  getY: -> @origin.y
+  setY: (val) -> @origin.y = val
 
   @property 'x1', {get: 'getX1', set: 'setX1'}
-  getX1: -> @data[@offset]
-  setX1: (val) -> @data[@offset] = val
+  getX1: -> @origin.x
+  setX1: (val) -> @origin.x = val
 
   @property 'y1', {get: 'getY1', set: 'setY1'}
-  getY1: -> @data[@offset + 1]
-  setY1: (val) -> @data[@offset + 1] = val
+  getY1: -> @origin.y
+  setY1: (val) -> @origin.y = val
 
   @property 'x2', {get: 'getX2', set: 'setX2'}
-  getX2: -> @data[@offset] + @data[@offset + 2]
-  setX2: (val) -> @data[@offset + 2] = val - @data[@offset]
+  getX2: -> @origin.x + @size.width
+  setX2: (val) -> @size.width = val - @origin.x
 
   @property 'y2', {get: 'getY2', set: 'setY2'}
-  getY2: -> @data[@offset + 1] + @data[@offset + 3]
-  setY2: (val) -> @data[@offset + 3] = val - @data[@offset + 1]
+  getY2: -> @origin.y + @size.height
+  setY2: (val) -> @size.height = val - @origin.y
 
   @property 'width', {get: 'getWidth', set: 'setWidth'}
-  getWidth: -> @data[@offset + 2]
-  setWidth: (val) -> @data[@offset + 2] = val
+  getWidth: -> @size.width
+  setWidth: (val) -> @size.width = val
 
   @property 'height', {get: 'getHeight', set: 'setHeight'}
-  getHeight: -> @data[@offset + 3]
-  setHeight: (val) -> @data[@offset + 3] = val
-
-  @property 'size', {get: 'getSize', set: 'setSize'}
-  getSize: ->
-    if not @_size?
-      @_size = new Size @data
-      @_size.offset = 2
-    return @_size
-  setSize: (size) ->
-    size = Size.select size
-    @data[2] = size.width
-    @data[3] = size.height
-
-  @property 'origin', {get: 'getOrigin', set: 'setOrigin'}
-  getOrigin: ->
-    if not @_origin?
-      @_origin = new Point @data
-    return @_origin
-  setOrigin: (point) ->
-    point = Point.select point
-    @data[0] = point.x
-    @data[1] = point.y
+  getHeight: -> @size.height
+  setHeight: (val) -> @size.height = val
 
   @property 'mid', {get: 'getMid', set: 'setMid'}
   getMid: -> new Point @x + (@width / 2), @y + (@height / 2)
@@ -196,8 +195,11 @@ class Rect extends Geometry
 
   inset: (delta) ->
     ### Shrinks or expands rectangle by *delta* keeping the same center point. ###
-    delta = Point.select delta
-    @origin.addPoint delta
+    if typeof delta is 'number'
+      delta = new Point [delta, delta]
+    else
+      delta = Point.select delta
+    @origin.add delta
     @size.width -= delta.x * 2
     @size.height -= delta.y * 2
     return this
