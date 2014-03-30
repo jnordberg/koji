@@ -3,7 +3,7 @@
 
 Modular CoffeeScript client-side framework, designed to be used with browserify/cjsify.
 
-**NOTE** -- Consider this alpha quality code, it's mostly for my own usage. I'll keep adding to it as I need new functionality. Bugfixes are welcome, features not. :)
+**NOTE** -- Consider this alpha quality code, it's mostly for my own usage. I'll keep adding to it as I need new functionality.
 
 ---
 
