@@ -1,6 +1,8 @@
 {EventEmitter} = require 'events'
 {Animation} = require './animation'
 
+noop = ->
+
 class Transition extends Animation
 
   @mixin EventEmitter

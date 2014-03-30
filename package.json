@@ -1,6 +1,6 @@
 {
   "name": "koji",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Modular CoffeeScript client-side framework",
   "author": "Johan Nordberg <code@johan-nordberg.com>",
   "repository": {
