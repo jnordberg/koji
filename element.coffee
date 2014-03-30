@@ -1,5 +1,6 @@
 bean = require 'bean'
 {Point, Size, Rect} = require './geometry'
+{Base} = require './base'
 
 toArray = (thing) -> Array.prototype.slice.call(thing)
 
@@ -37,7 +38,7 @@ setProperty = (element, key, value) ->
       element[key] = value
   return
 
-class Element
+class Element extends Base
 
   constructor: (node, properties) ->
     if typeof node is 'string'
@@ -102,9 +103,10 @@ class Element
   getPosition: ->
     # TODO: fallback for bad browsers
     bounds = @node.getBoundingClientRect()
-    return new Point
-      x: bounds.left + document.body.scrollLeft
-      y: bounds.top + document.body.scrollTop
+    return new Point [
+      bounds.left + document.body.scrollLeft
+      bounds.top + document.body.scrollTop
+    ]
 
   setPosition: (position) ->
     @node.style.transform = "translate(#{ position.x }, #{ position.y });"

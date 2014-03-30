@@ -18,7 +18,8 @@ class Base
   @property: (name, descriptor) ->
     if typeof descriptor.get is 'string'
       getterName = descriptor.get
-      descriptor.get = -> this[getterName].call(this)
+      descriptor.get = ->
+        this[getterName].call(this)
     if typeof descriptor.set is 'string'
       setterName = descriptor.set
       descriptor.set = ->
