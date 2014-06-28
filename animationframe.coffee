@@ -39,10 +39,13 @@ requestAnimationFrame (time) ->
       requestAnimationFrame.now = -> window.performance.now()
       requestAnimationFrame.method = 'native-highres'
     else
-      # iOS7 sends highres timestamps but does not expose a way to access them
-      offset = now() - time
-      requestAnimationFrame.now = -> now() - offset
-      requestAnimationFrame.method = 'native-highres-noperf'
+      # iOS7+ and Safari6+ sends highres timestamps but
+      # does not expose a way to access them
+      _raf = requestAnimationFrame
+      requestAnimationFrame = (callback) -> _raf -> callback now()
+      requestAnimationFrame.now = now
+      requestAnimationFrame.method = 'native-noperf'
+      window.requestAnimationFrame = requestAnimationFrame
   else
     requestAnimationFrame.now = now
   return
